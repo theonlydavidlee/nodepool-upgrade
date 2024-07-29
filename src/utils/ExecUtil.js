@@ -8,7 +8,8 @@ class ExecUtil {
           console.error(`Error executing command: ${command}`, error);
           return reject(error);
         }
-        console.log(`Command output: ${stdout}`);
+        // Uncomment to view all STDOUT when executing commands
+        // console.log(`Command output: ${stdout}`);
         return resolve(stdout);
       });
     });
