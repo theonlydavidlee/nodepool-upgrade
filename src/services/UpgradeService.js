@@ -1,3 +1,5 @@
+const ClusterSetupService = require('./ClusterSetupService');
+const NodePoolReadyService = require('./NodePoolReadyService');
 const TransferWorkloadService = require('./TransferWorkloadService');
 const NodePoolOperationCompleteService = require('./NodePoolOperationCompleteService');
 
@@ -20,9 +22,11 @@ class UpgradeService {
         }
 
         const nodepool = this.mapToNodepoolObj(payload);
-        const workload = 'rsp-egress';
+        const workload = 'demo-springboot-app';
         const type = 'deployment';
 
+        await ClusterSetupService.setup(payload.data.cluster, payload.data.location);
+        await NodePoolReadyService.waitForNodePoolToBeReady(payload.data.nodepool, payload.data.cluster);    
         await TransferWorkloadService.transferWorkload(nodepool, workload, type);
         await NodePoolOperationCompleteService.completeUpgrade(nodepool);
 
