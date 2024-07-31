@@ -39,7 +39,7 @@ class UpgradeService {
         }
 
         try {
-            await NodepoolOperationUtil.waitForUpgradeReady(timeoutMinutes, payload.data.location, payload.data.cluster, payload.data.nodepool);
+            await NodepoolOperationUtil.waitForUpgradeReady(timeoutMinutes, payload.data.project, payload.data.location, payload.data.cluster, payload.data.nodepool);
         } catch(error) {
             console.log(`Failed to detect upgrade is ready to proceed`);
             throw error;
