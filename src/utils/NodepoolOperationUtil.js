@@ -8,7 +8,7 @@ class NodepoolOperationUtil {
     await RetryUtil.retry(async () => {
       // Execute command(s)
       await ExecUtil.executeCommand(`echo "Nodepool ready state"`);
-      return false;
+      return true;
     }, timeoutMinutes);
   }
 

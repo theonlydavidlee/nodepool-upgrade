@@ -6,13 +6,14 @@ class RetryUtil {
     const internalWaitMillis = 5000;
 
     while (Date.now() < maxTimeMillis) {
-      if (await func()) {
-        return;
+      try {
+        return await func();
+      } catch(error) {
+        console.log(`Sleep ${internalWaitMillis} millis`);
+        await SleepUtil.sleepMillis(internalWaitMillis);
       }
-      console.log(`Sleep ${internalWaitMillis} millis`);
-      await SleepUtil.sleepMillis(internalWaitMillis);
     }
-    throw new Error('Retry failed error');
+    throw new Error('Retry failed error [Timeout Exceeded]');
   }
 }
 

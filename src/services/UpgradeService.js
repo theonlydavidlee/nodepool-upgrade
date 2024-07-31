@@ -26,17 +26,40 @@ class UpgradeService {
             throw new Error('"nodepool" must be set e.g. [int-pre-medium-disk-a]');
         }
 
-        if (!(payload.data.workload && payload.data.workload.name && payload.data.workload.type)) {
+        if (!(payload.data.workload && payload.data.workload.name && payload.data.workload.type && payload.data.workload.namespace)) {
             throw new Error('"workload" must be set e.g. [rsp-egress]');
         }
 
         const timeoutMinutes = 2;
-        await ClusterConnectionUtil.connect(payload.data.location, payload.data.cluster, payload.data.project, credentialsPath);
-        await NodepoolOperationUtil.waitForUpgradeReady(timeoutMinutes, payload.data.location, payload.data.cluster, payload.data.nodepool);
-        await TransferWorkloadUtil.waitForWorkloadTransfer(timeoutMinutes, payload.data.nodepool, payload.data.workload.name, payload.data.workload.type);
-        await NodepoolOperationUtil.waitForUpgradeComplete(timeoutMinutes, payload.data.location, payload.data.cluster, payload.data.nodepool);
+        try {
+            await ClusterConnectionUtil.connect(payload.data.location, payload.data.cluster, payload.data.project, credentialsPath);
+        } catch(error) {
+            console.log(`Failed to setup service account and connect to the cluster`);
+            throw error;
+        }
 
-        console.log('Upgrade completed successfully.');
+        try {
+            await NodepoolOperationUtil.waitForUpgradeReady(timeoutMinutes, payload.data.location, payload.data.cluster, payload.data.nodepool);
+        } catch(error) {
+            console.log(`Failed to detect upgrade is ready to proceed`);
+            throw error;
+        }
+
+        try {
+            await TransferWorkloadUtil.waitForWorkloadTransfer(timeoutMinutes, payload.data.nodepool, payload.data.workload.name, payload.data.workload.type, payload.data.workload.namespace);
+        } catch(error) {
+            console.log(`Failed to detect workload transfer`);
+            throw error;
+        }
+
+        try {
+            await NodepoolOperationUtil.waitForUpgradeComplete(timeoutMinutes, payload.data.location, payload.data.cluster, payload.data.nodepool);
+        } catch (error) {
+            console.log(`Failed to detect nodepool upgrade is complete`);
+            throw error;
+        }
+
+        console.log('Nodepool upgrade completed successfully');
     }
 }
 
