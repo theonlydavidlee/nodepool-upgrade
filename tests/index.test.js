@@ -1,8 +1,8 @@
 const request = require('supertest');
 const express = require('express');
-const RequestService = require('../src/services/UpgradeService');
+const RequestService = require('../src/services/NodePoolUpgradeService');
 
-jest.mock('../src/services/UpgradeService');
+jest.mock('../src/services/NodePoolUpgradeService');
 
 const app = express();
 app.use(express.json());

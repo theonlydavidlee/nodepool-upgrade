@@ -1,4 +1,4 @@
-const CompleteUpgradeService = require('../../src/services/UpgradeService');
+const CompleteUpgradeService = require('../../src/services/NodePoolUpgradeService');
 const { exec } = require('child_process');
 
 jest.mock('child_process', () => ({

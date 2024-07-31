@@ -2,7 +2,7 @@ const ExecUtil = require('../utils/ExecUtil');
 
 
 
-class NodePoolDiscoveryService {
+class NodeDiscoveryService {
   static async getNodes(nodepool) {
     const result = await ExecUtil.executeCommand(`kubectl get nodes -o=jsonpath='{range .items[?(@.metadata.labels.cloud\\.google\\.com/gke-nodepool=="${nodepool.name}")]}{.metadata.name} {.spec.unschedulable}{"\\n"}{end}'`);
     // console.log(result);
@@ -18,4 +18,4 @@ class NodePoolDiscoveryService {
   }
 }
 
-module.exports = NodePoolDiscoveryService;
+module.exports = NodeDiscoveryService;

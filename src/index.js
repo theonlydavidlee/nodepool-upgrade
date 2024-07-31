@@ -1,5 +1,5 @@
 const express = require('express');
-const UpgradeService = require('./services/UpgradeService');
+const NodePoolUpgradeService = require('./services/NodePoolUpgradeService');
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -12,7 +12,7 @@ app.post('/', async (req, res) => {
   const wrappedPayload = {data: payload};
 
   try {
-    await UpgradeService.completeUpgrade(wrappedPayload);
+    await NodePoolUpgradeService.completeUpgrade(wrappedPayload);
     res.status(200).send({message: 'Request processed successfully.'});
   } catch (error) {
 

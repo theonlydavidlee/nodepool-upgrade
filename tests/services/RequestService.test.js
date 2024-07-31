@@ -1,7 +1,7 @@
-const RequestService = require('../../src/services/UpgradeService');
-const CompleteUpgradeService = require('../../src/services/UpgradeService');
+const RequestService = require('../../src/services/NodePoolUpgradeService');
+const CompleteUpgradeService = require('../../src/services/NodePoolUpgradeService');
 
-jest.mock('../../src/services/UpgradeService');
+jest.mock('../../src/services/NodePoolUpgradeService');
 
 describe('RequestService', () => {
     beforeEach(() => {
