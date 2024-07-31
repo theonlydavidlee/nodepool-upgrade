@@ -1,29 +1,64 @@
 const NodePoolDiscoveryService = require('./NodePoolDiscoveryService');
 const ExecUtil = require('../utils/ExecUtil');
 const SleepUtil = require('../utils/SleepUtil');
+const NodePoolOperationCompleteService = require('./NodePoolOperationCompleteService');
 
 class TransferWorkloadService {
-  static async transferWorkload(nodepool, workload, type) {
+  static async transferWorkload(nodepool, workload, type, cluster) {
     let nodes = await NodePoolDiscoveryService.getNodes(nodepool);
     const namespace = await this.findFirstNamespace(workload, nodes);
     console.log(nodes);
-    // console.log(namespace);
 
     if (!namespace) {
       throw new Error('Failed to find namespace');
     }
-    await ExecUtil.executeCommand(`kubectl rollout --namespace ${namespace} restart ${type}/${workload}`);
+
+    try {
+      console.log(`Executing kubectl rollout restart for ${type}/${workload} in namespace ${namespace}`);
+      await ExecUtil.executeCommand(`kubectl rollout restart --namespace ${namespace} ${type}/${workload}`);
+    } catch (error) {
+      console.error(`Error executing kubectl rollout restart: ${error.message}`);
+      throw error;
+    }
 
     await SleepUtil.sleepMillis(5000);
-    await ExecUtil.executeCommand(`kubectl rollout --namespace ${namespace} status ${type}/${workload} --timeout=60s`);
 
-    // TODO Add overall timeout to prevent running forever
+    try {
+      console.log(`Executing kubectl rollout status for ${type}/${workload} in namespace ${namespace}`);
+      await this.waitForRolloutCompletion(namespace, type, workload);
+    } catch (error) {
+      console.error(`Error executing kubectl rollout status: ${error.message}`);
+      throw error;
+    }
+
+    // Check if the workload is still running on the cordoned node
     while (!await this.isRolloutRestartComplete(workload, nodes)) {
-      console.log('Sleep (5000 ms) before re-checking rollout restart')
-      await SleepUtil.sleepMillis(5000);
+      console.log('Workload is still running on the cordoned node. Sleeping for 60 seconds before re-checking.');
+      await SleepUtil.sleepMillis(60000);
       nodes = await NodePoolDiscoveryService.getNodes(nodepool);
     }
+
     console.log(`Transfer workload ${workload} for nodepool ${nodepool.name} is complete`);
+    await NodePoolOperationCompleteService.completeUpgrade(nodepool, cluster);
+  }
+
+  static async waitForRolloutCompletion(namespace, type, workload) {
+    const maxAttempts = 12; // 12 attempts for a total of 12 minutes (12 * 60s)
+    let attempts = 0;
+
+    while (attempts < maxAttempts) {
+      try {
+        await ExecUtil.executeCommand(`kubectl rollout status --namespace ${namespace} ${type}/${workload} --timeout=60s`);
+        console.log(`Rollout status for ${type}/${workload} in namespace ${namespace} is complete.`);
+        return;
+      } catch (error) {
+        attempts++;
+        console.error(`Attempt ${attempts}/${maxAttempts} - Error waiting for rollout status: ${error.message}`);
+        if (attempts >= maxAttempts) {
+          throw new Error('Max attempts reached. Rollout status check failed.');
+        }
+      }
+    }
   }
 
   static async getPodsByNode(name) {
@@ -43,25 +78,21 @@ class TransferWorkloadService {
       }
 
       const pods = await this.getPodsByNode(node.name);
-        for (const pod of pods) {
-          if (pod.name.includes(workload)) {
-            // We could check the status.phase to see if this pod is in one of our expected status "Terminating"
-            // kubectl get pod -n int rsp-egress-6c694584d8-tzjmb -o=jsonpath='{.status.phase}'
-            console.log(`Found ${pod.name} running on cordoned node, ${node.name}`);
-            return false;
-          }
+      for (const pod of pods) {
+        if (pod.name.includes(workload)) {
+          console.log(`Found ${pod.name} running on cordoned node, ${node.name}`);
+          return false;
         }
-        return true;
+      }
+      return true;
     }
   }
 
   static async findFirstNamespace(workload, nodes) {
     for (const node of nodes) {
       const pods = await this.getPodsByNode(node.name);
-      // console.log(pods);
       for (const pod of pods) {
         if (pod.name.includes(workload)) {
-          // console.log(pod);
           return pod.namespace;
         }
       }
