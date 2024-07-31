@@ -21,7 +21,7 @@ class TransferWorkloadService {
       throw error;
     }
 
-    await SleepUtil.sleepMillis(5000);
+    await SleepUtil.sleepMillis(60000);
 
     try {
       console.log(`Executing kubectl rollout status for ${type}/${workload} in namespace ${namespace}`);
@@ -31,7 +31,6 @@ class TransferWorkloadService {
       throw error;
     }
 
-    // Check if the workload is still running on the cordoned node
     while (!await this.isRolloutRestartComplete(workload, nodes)) {
       console.log('Workload is still running on the cordoned node. Sleeping for 60 seconds before re-checking.');
       await SleepUtil.sleepMillis(60000);
@@ -43,7 +42,7 @@ class TransferWorkloadService {
   }
 
   static async waitForRolloutCompletion(namespace, type, workload) {
-    const maxAttempts = 12; // 12 attempts for a total of 12 minutes (12 * 60s)
+    const maxAttempts = 12;
     let attempts = 0;
 
     while (attempts < maxAttempts) {
