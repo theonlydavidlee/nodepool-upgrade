@@ -2,7 +2,7 @@ const ExecUtil = require('./ExecUtil');
 const RetryUtil = require('./RetryUtil');
 
 class TransferWorkloadUtil {
-  static async transfer(timeoutMinutes, nodepool, workload, type) {
+  static async waitForWorkloadTransfer(timeoutMinutes, nodepool, workload, type) {
     console.log(`Transferring [type=${type}] ${workload} on nodepool ${nodepool}; timeout = ${timeoutMinutes} minutes`);
 
     await RetryUtil.retry(async () => {
