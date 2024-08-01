@@ -8,10 +8,10 @@ class UpgradeService {
             throw new Error('Invalid payload');
         }
 
-        const credentialsPath = '/Users/davidlee/tmp/credentials.json';
+        const credentialsPath = '/secrets/credentials.json';
 
         if (!payload.data.project) {
-            throw new Error('"googleProject" must be set e.g. [lao-multisite]');
+            throw new Error('"project" must be set e.g. [lao-multisite]');
         }
 
         if (!payload.data.location) {
@@ -26,34 +26,37 @@ class UpgradeService {
             throw new Error('"nodepool" must be set e.g. [int-pre-medium-disk-a]');
         }
 
+        if (!payload.data.version) {
+            throw new Error('"version" must be set e.g. [1.28.10-gke.1075001]');
+        }
+
         if (!(payload.data.workload && payload.data.workload.name && payload.data.workload.type && payload.data.workload.namespace)) {
             throw new Error('"workload" must be set e.g. [rsp-egress]');
         }
 
-        const timeoutMinutes = 2;
         try {
-            await ClusterConnectionUtil.connect(payload.data.location, payload.data.cluster, payload.data.project, credentialsPath);
+            await ClusterConnectionUtil.connect(payload.data.project, payload.data.location, payload.data.cluster, credentialsPath);
         } catch(error) {
             console.log(`Failed to setup service account and connect to the cluster`);
             throw error;
         }
 
         try {
-            await NodepoolOperationUtil.waitForUpgradeReady(timeoutMinutes, payload.data.project, payload.data.location, payload.data.cluster, payload.data.nodepool);
+            await NodepoolOperationUtil.waitForUpgradeReady(5, payload.data.project, payload.data.location, payload.data.cluster, payload.data.nodepool);
         } catch(error) {
             console.log(`Failed to detect upgrade is ready to proceed`);
             throw error;
         }
 
         try {
-            await TransferWorkloadUtil.waitForWorkloadTransfer(timeoutMinutes, payload.data.nodepool, payload.data.workload.name, payload.data.workload.type, payload.data.workload.namespace);
+            await TransferWorkloadUtil.waitForWorkloadTransfer(180, payload.data.nodepool, payload.data.workload.name, payload.data.workload.type, payload.data.workload.namespace);
         } catch(error) {
             console.log(`Failed to detect workload transfer`);
             throw error;
         }
 
         try {
-            await NodepoolOperationUtil.waitForUpgradeComplete(timeoutMinutes, payload.data.project, payload.data.location, payload.data.cluster, payload.data.nodepool);
+            await NodepoolOperationUtil.waitForUpgradeComplete(5, payload.data.project, payload.data.location, payload.data.cluster, payload.data.nodepool, payload.data.version);
         } catch (error) {
             console.log(`Failed to detect nodepool upgrade is complete`);
             throw error;

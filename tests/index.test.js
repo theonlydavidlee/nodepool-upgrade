@@ -1,8 +1,8 @@
 const request = require('supertest');
 const express = require('express');
-const RequestService = require('../src/services/NodePoolUpgradeService');
+const UpgradeService = require('../src/services/UpgradeService');
 
-jest.mock('../src/services/NodePoolUpgradeService');
+jest.mock('../src/services/UpgradeService');
 
 const app = express();
 app.use(express.json());
@@ -12,7 +12,7 @@ app.post('/', async (req, res) => {
     const wrappedPayload = { data: payload };
 
     try {
-        await RequestService.handleRequest(wrappedPayload);
+        await UpgradeService.completeUpgrade(wrappedPayload);
         res.status(200).send({ message: 'Request processed successfully.' });
     } catch (error) {
         console.error('Error processing request:', error);
@@ -26,7 +26,7 @@ describe('POST /', () => {
     });
 
     test('should return 200 for valid request', async () => {
-        RequestService.handleRequest.mockResolvedValue();
+        UpgradeService.completeUpgrade.mockResolvedValue();
 
         const response = await request(app)
             .post('/')
@@ -38,7 +38,7 @@ describe('POST /', () => {
     });
 
     test('should return 500 for invalid request', async () => {
-        RequestService.handleRequest.mockRejectedValue(new Error('Invalid payload'));
+        UpgradeService.completeUpgrade.mockRejectedValue(new Error('Invalid payload'));
 
         const response = await request(app)
             .post('/')

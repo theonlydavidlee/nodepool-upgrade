@@ -9,7 +9,7 @@ class RetryUtil {
       try {
         return await func();
       } catch(error) {
-        console.log(`Sleep ${internalWaitMillis} millis`);
+        // console.log(`Sleep ${internalWaitMillis} millis`);
         await SleepUtil.sleepMillis(internalWaitMillis);
       }
     }
