@@ -82,10 +82,9 @@ class TransferWorkloadUtil {
     console.log(`Transferring [type=${type}] ${workload} on nodepool ${nodepool}; timeout = ${timeoutMinutes} minutes`);
 
     let nodes = await this.getNodepoolNodes(nodepool);
-    console.log(nodes);
     try {
-      // console.log(`kubectl rollout restart --namespace ${namespace} ${type}/${workload}`);
-      await ExecUtil.executeCommand(`kubectl rollout restart --namespace ${namespace} ${type}/${workload}`);
+      console.log(`kubectl rollout restart --namespace ${namespace} ${type}/${workload}`);
+      //await ExecUtil.executeCommand(`kubectl rollout restart --namespace ${namespace} ${type}/${workload}`);
     } catch (error) {
       console.log(`Failed to execute: [kubectl rollout restart --namespace ${namespace} ${type}/${workload}]`)
       throw error;
@@ -100,7 +99,6 @@ class TransferWorkloadUtil {
       } catch (error) {
         console.log(`Failed to refresh nodes.`);
       }
-      console.log(nodes);
 
       const isWorkloadTransferComplete = await this.isWorkloadTransferComplete(workload, nodes);
       if (!isWorkloadTransferComplete) {
