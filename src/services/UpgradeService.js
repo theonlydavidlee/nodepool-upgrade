@@ -4,12 +4,14 @@ const TransferWorkloadUtil = require('../utils/TransferWorkloadUtil');
 
 class UpgradeService {
     static async completeUpgrade(payload) {
+        console.log(payload);
         if (!(payload && payload.data)) {
             throw new Error('Invalid payload');
         }
 
         const credentialsPath = '/secrets/credentials.json';
 
+        console.log(payload.data.project);
         if (!payload.data.project) {
             throw new Error('"project" must be set e.g. [lao-multisite]');
         }

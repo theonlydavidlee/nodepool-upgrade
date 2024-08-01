@@ -1,13 +1,16 @@
 const express = require('express');
+const bodyParser = require('body-parser');
+
 const UpgradeService = require('./services/UpgradeService');
 
 const app = express();
-const port = process.env.PORT || 8080;
+const PORT = parseInt(parseInt(process.env.PORT)) || 8080;
 
-app.use(express.json());
+app.use(bodyParser.json());
 
 app.post('/', async (req, res) => {
   const payload = req.body;
+  console.log(req.body);
   const wrappedPayload = {data: payload};
 
   try {
@@ -19,6 +22,10 @@ app.post('/', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+app.get('/ping', async (req, res) => {
+  res.status(200).send({message: 'Healthy'});
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
