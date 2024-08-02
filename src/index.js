@@ -1,16 +1,14 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 
 const UpgradeService = require('./services/UpgradeService');
 
 const app = express();
-const PORT = parseInt(parseInt(process.env.PORT)) || 8080;
+const PORT = parseInt(process.env.PORT) || 8080;
 
-app.use(bodyParser.json());
+app.use(express.json());
 
 app.post('/', async (req, res) => {
   const payload = req.body;
-  console.log(req.body);
   const wrappedPayload = {data: payload};
 
   try {

@@ -4,14 +4,12 @@ const TransferWorkloadUtil = require('../utils/TransferWorkloadUtil');
 
 class UpgradeService {
     static async completeUpgrade(payload) {
-        console.log(payload);
         if (!(payload && payload.data)) {
             throw new Error('Invalid payload');
         }
 
         const credentialsPath = '/secrets/credentials.json';
 
-        console.log(payload.data.project);
         if (!payload.data.project) {
             throw new Error('"project" must be set e.g. [lao-multisite]');
         }
@@ -35,6 +33,10 @@ class UpgradeService {
         if (!(payload.data.workload && payload.data.workload.name && payload.data.workload.type && payload.data.workload.namespace)) {
             throw new Error('"workload" must be set e.g. [rsp-egress]');
         }
+
+        console.log(`Complete nodepool upgrade nodepool:${payload.data.nodepool}; version:${payload.data.version}`);
+        console.log(`project:${payload.data.project}; location:${payload.data.location}; cluster:${payload.data.cluster}`);
+        console.log(`workload: ${payload.data.workload.type}/${payload.data.workload.name}:${payload.data.workload.namespace}`);
 
         try {
             await ClusterConnectionUtil.connect(payload.data.project, payload.data.location, payload.data.cluster, credentialsPath);
