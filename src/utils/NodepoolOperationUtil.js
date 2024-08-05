@@ -15,7 +15,7 @@ class NodepoolOperationUtil {
     }
 
     const nodePoolJson = JSON.parse(result);
-    console.log(`Checking if nodepool is in soaking phase; phase=[${nodePoolJson.updateInfo?.blueGreenInfo?.phase}]`);
+    console.log(`Checking if nodepool is in [DRAINING_BLUE_POOL] phase; found phase=[${nodePoolJson.updateInfo?.blueGreenInfo?.phase}]`);
     return nodePoolJson.updateInfo && nodePoolJson.updateInfo.blueGreenInfo && nodePoolJson.updateInfo.blueGreenInfo.phase === phase;
   }
 
@@ -42,7 +42,7 @@ class NodepoolOperationUtil {
     }
 
     const nodePoolJson = JSON.parse(result);
-    console.log(`Checking if nodepool is in soaking phase; phase=[${nodePoolJson.updateInfo?.blueGreenInfo?.phase}]`);
+    console.log(`Checking if nodepool is in [NODE_POOL_SOAKING] phase; found phase=[${nodePoolJson.updateInfo?.blueGreenInfo?.phase}]`);
     return nodePoolJson.updateInfo && nodePoolJson.updateInfo.blueGreenInfo && nodePoolJson.updateInfo.blueGreenInfo.phase === phase;
   }
 
@@ -58,7 +58,7 @@ class NodepoolOperationUtil {
     }
 
     const nodePoolJson = JSON.parse(result);
-    console.log(`Checking if nodepool is in complete state; status=[${nodePoolJson.status}] and version=[${nodePoolJson.version}]`);
+    console.log(`Checking if nodepool upgrade is complete; expecting version=[${version}]; found status=[${nodePoolJson.status}] and version=[${nodePoolJson.version}]`);
     return nodePoolJson.status && nodePoolJson.version && nodePoolJson.status === status  && nodePoolJson.version === version;
   }
 
