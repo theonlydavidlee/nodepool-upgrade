@@ -53,7 +53,7 @@ class UpgradeService {
         }
 
         try {
-            await TransferWorkloadUtil.waitForWorkloadTransfer(180, payload.data.nodepool, payload.data.workload.name, payload.data.workload.type, payload.data.workload.namespace);
+            await TransferWorkloadUtil.waitForWorkloadTransfer(40, payload.data.nodepool, payload.data.workload.name, payload.data.workload.type, payload.data.workload.namespace);
         } catch(error) {
             console.log(`Failed to detect workload transfer`);
             throw error;
