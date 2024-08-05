@@ -79,7 +79,7 @@ class TransferWorkloadUtil {
   }
 
   static async waitForWorkloadTransfer(timeoutMinutes, nodepool, workload, type, namespace) {
-    console.log(`Transferring [type=${type}] ${workload} on nodepool ${nodepool}; timeout = ${timeoutMinutes} minutes`);
+    console.log(`Rollout-restart [type=${type}] ${workload} on nodepool ${nodepool}; timeout = ${timeoutMinutes} minutes`);
 
     let nodes = await this.getNodepoolNodes(nodepool);
     try {
